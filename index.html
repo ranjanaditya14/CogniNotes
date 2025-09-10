@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CogniNotes: Your AI Text Tool Kit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* same styles as before */
+    :root { --bg: #0b0d10; --bg-soft:#111418; --card:#141922; --txt:#e7eef7;
+      --muted:#99a3af; --brand:#6aa7ff; --brand-2:#8ef5d2; --brand-pink: #ff69b4;
+      --brand-glow: #6aa7ff60; --shadow: 0 10px 25px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+      --radius: 18px;}
+    *, *::before, *::after { box-sizing: border-box; }
+    body{ margin:0; font-family:Inter,system-ui; background: radial-gradient(ellipse at bottom, #1b1031, var(--bg));
+      color:var(--txt); display:flex; min-height:100vh; position:relative; overflow:hidden; }
+    /* aurora background shapes */
+    .aurora-shape{ position:absolute; border-radius:50%; filter: blur(140px); z-index:0; }
+    .aurora-shape.shape-1{ width: 800px; height: 800px; background: radial-gradient(circle, rgba(142,245,210,.3), transparent 70%);
+      top:-350px; left:-350px; animation: float 45s linear infinite;}
+    .aurora-shape.shape-2{ width:700px; height:700px; background: radial-gradient(circle, rgba(106,167,255,.28), transparent 70%);
+      top:50%; left:-300px; animation: float-alt 55s linear infinite; animation-delay:3s;}
+    .aurora-shape.shape-3{ width:900px; height:900px; background: radial-gradient(circle, rgba(255,105,180,.38), transparent 70%);
+      bottom:-400px; right:-400px; animation: float 50s linear infinite;}
+    .aurora-shape.shape-4{ width:600px; height:600px; background: radial-gradient(circle, rgba(175,105,255,.25), transparent 70%);
+      bottom:-200px; left:-100px; animation: float-alt 60s linear infinite; animation-delay:5s;}
+    @keyframes float{0%{transform:translate(0,0) rotate(0);}25%{transform:translate(40px,-60px) rotate(90deg);}
+      50%{transform:translate(-30px,20px) rotate(180deg);}75%{transform:translate(50px,50px) rotate(270deg);}
+      100%{transform:translate(0,0) rotate(360deg);}}
+    @keyframes float-alt{0%{transform:translate(0,0) rotate(0);}33%{transform:translate(-50px,40px) rotate(120deg);}
+      66%{transform:translate(30px,-60px) rotate(240deg);}100%{transform:translate(0,0) rotate(360deg);}}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(20px);}to{opacity:1; transform:translateY(0);}}
+    /* sidebar */
+    .sidebar{width:260px;background:rgba(17,20,24,.7);padding:20px;display:flex;flex-direction:column;box-shadow:var(--shadow);
+      z-index:1;justify-content:space-between;border-right:1px solid rgba(255,255,255,.05);}
+    .sidebar h2{font-size:1rem;margin:0 0 20px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+    .tool-list{display:flex;flex-direction:column;gap:18px}
+    .sidebar button{padding:14px;border:none;border-radius:12px;background:var(--bg-soft);color:var(--txt);
+      font-weight:600;cursor:pointer;transition:all .3s ease;border:1px solid transparent;text-align:left;}
+    .sidebar button:hover{transform:translateY(-3px);background:var(--card);border-color:rgba(255,255,255,.1);
+      box-shadow:0 0 25px var(--brand-glow);}
+    .sidebar button.active{background:linear-gradient(135deg,var(--brand-pink),var(--brand-2));color:#04131c;
+      transform:translateY(-3px);box-shadow:0 6px 15px rgba(0,0,0,.4),0 0 10px rgba(255,105,180,.4),0 0 10px rgba(142,245,210,.3);}
+    .sidebar-footer{margin-top:30px;font-size:0.9rem;color:var(--muted);text-align:center;padding-top:20px;border-top:1px solid rgba(255,255,255,.1)}
+    .main{flex:1;padding:40px;z-index:1;position:relative;animation:fadeIn 1s ease-out;}
+    header{margin-bottom:30px;display:flex;justify-content:space-between;align-items:flex-start;}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.1rem}
+    .brand-badge{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#07121a;font-weight:900;box-shadow:var(--shadow)}
+    h1{font-size:2.5rem;margin:0 0 16px;background:linear-gradient(45deg,var(--txt),var(--muted));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .lead{font-size:1.2rem;color:var(--muted);max-width:60ch;line-height:1.6;}
+    .glass-card{background:rgba(20,25,34,.5);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:25px;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+    label{display:block;margin-bottom:10px;font-weight:500;color:var(--txt);font-size:1.1rem;}
+    textarea{width:100%;min-height:200px;border-radius:12px;padding:16px;font-size:1rem;background:var(--bg-soft);color:var(--txt);border:1px solid rgba(255,255,255,.1);resize:vertical;}
+    textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 15px var(--brand-glow);}
+    .note{margin-top:10px;color:var(--muted);font-size:0.9rem}
+    .process-btn{margin-top:15px;padding:12px 24px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#04131c;font-weight:700;cursor:pointer;font-size:1rem;}
+    .process-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 6px 20px rgba(0,0,0,0.4);filter:brightness(1.1);}
+    footer{border-top:1px solid rgba(255,255,255,.08);padding:20px 0;color:var(--muted);margin-top:40px;text-align:center}
+    /* analog clock */
+    .analog-clock{position:relative;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+      box-shadow:inset 0 0 10px rgba(0,0,0,.2),0 0 20px var(--brand-glow);display:flex;justify-content:center;align-items:center;margin-top:10px;margin-right:10px;z-index:10;}
+    .analog-clock::before{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--txt);z-index:11;}
+    .analog-clock .hand{position:absolute;left:50%;bottom:50%;border-radius:5px;transform-origin:bottom;}
+    .analog-clock .hour{width:4px;height:30px;background:var(--muted);z-index:8;}
+    .analog-clock .minute{width:3px;height:40px;background:var(--txt);z-index:9;}
+    .analog-clock .second{width:2px;height:45px;background:var(--brand-pink);z-index:10;}
+  </style>
+</head>
+<body>
+  <!-- background shapes -->
+  <div class="aurora-shape shape-1"></div><div class="aurora-shape shape-2"></div>
+  <div class="aurora-shape shape-3"></div><div class="aurora-shape shape-4"></div>
+
+  <!-- sidebar -->
+  <aside class="sidebar">
+    <div>
+      <h2>Tools</h2>
+      <div class="tool-list">
+        <button class="tool-btn active" data-tool="Summarize">Summarize Notes</button>
+        <button class="tool-btn" data-tool="Elaborate">Elaborate Sentences</button>
+        <button class="tool-btn" data-tool="Generate Questions">Make Questions</button>
+        <button class="tool-btn" data-tool="Create Analogies">Create Analogies</button>
+      </div>
+    </div>
+    <div class="sidebar-footer">Made by : THE TEAM</div>
+  </aside>
+
+  <!-- main -->
+  <div class="main">
+    <header>
+      <div class="brand"><span class="brand-badge">CN</span><span>CogniNotes: Your AI Text Tool Kit</span></div>
+      <div class="analog-clock"><div class="hand hour" id="hourHand"></div><div class="hand minute" id="minuteHand"></div><div class="hand second" id="secondHand"></div></div>
+    </header>
+
+    <section>
+      <h1 id="main-title">Summarize Your Notes</h1>
+      <p id="main-lead" class="lead">Condense long texts into key points. Paste your content below to get a quick and accurate summary, perfect for studying and review.</p>
+    </section>
+
+    <section style="margin-top:30px">
+      <div class="glass-card">
+        <label for="textInput">Paste your text and choose a tool</label>
+        <textarea id="textInput" placeholder="Paste your long article, study notes, or any text here to get started..."></textarea>
+        <p class="note">⚠️ Add your text before processing</p>
+        <button id="processBtn" class="process-btn">Process My Text</button>
+        <div id="summaryOutput" style="margin-top:20px;padding:15px;background:rgba(255,255,255,0.05);border-radius:10px;display:none;white-space:pre-wrap;"></div>
+      </div>
+    </section>
+
+    <footer><p>© <span id="year"></span> CogniNotes, All rights reserved.</p></footer>
+  </div>
+
+  <!-- JS -->
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const toolData = {
+      Summarize:{title:"Summarize Your Notes",lead:"Condense long texts into key points. Paste your content below to get a quick and accurate summary.",placeholder:"Paste your long article here..."},
+      Elaborate:{title:"Elaborate on Sentences",lead:"Expand simple ideas into detailed paragraphs. Perfect for adding depth.",placeholder:"Type a short sentence and see it transform..."},
+      "Generate Questions":{title:"Generate Insightful Questions",lead:"Turn any piece of text into a set of thoughtful questions.",placeholder:"Paste text to create questions from..."},
+      "Create Analogies":{title:"Create Powerful Analogies",lead:"Explain complex topics with simple, relatable analogies.",placeholder:"Enter a complex concept, like 'Blockchain is...' "}
+    };
+
+    const buttons=document.querySelectorAll('.tool-btn');
+    const mainTitle=document.getElementById('main-title');
+    const mainLead=document.getElementById('main-lead');
+    const textInput=document.getElementById('textInput');
+    let currentMode="Summarize";
+
+    buttons.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        buttons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode=btn.dataset.tool;
+        if(toolData[currentMode]){
+          mainTitle.textContent=toolData[currentMode].title;
+          mainLead.textContent=toolData[currentMode].lead;
+          textInput.placeholder=toolData[currentMode].placeholder;
+        }
+      });
+    });
+
+    // clock
+    const hourHand=document.getElementById('hourHand'),minuteHand=document.getElementById('minuteHand'),secondHand=document.getElementById('secondHand');
+    function updateClock(){const now=new Date(),s=now.getSeconds(),m=now.getMinutes(),h=now.getHours();
+      secondHand.style.transform=`translateX(-50%) rotate(${(s/60)*360}deg)`;
+      minuteHand.style.transform=`translateX(-50%) rotate(${((m+s/60)/60)*360}deg)`;
+      hourHand.style.transform=`translateX(-50%) rotate(${((h%12+m/60)/12)*360}deg)`;}
+    setInterval(updateClock,1000);updateClock();
+
+    // backend call
+    document.getElementById("processBtn").addEventListener("click",async()=>{
+      const text=textInput.value.trim();
+      const outputEl=document.getElementById("summaryOutput");
+      if(!text){alert("Please paste some text first.");return;}
+      outputEl.style.display="block";outputEl.textContent="⏳ Processing...";
+      try{
+        const res=await fetch("/process-text",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({text:text,mode:currentMode})});
+        if(!res.ok){outputEl.textContent="⚠️ Server error";return;}
+        const data=await res.json();
+        outputEl.textContent=data.response||"⚠️ No response from AI.";
+      }catch(err){console.error(err);outputEl.textContent="⚠️ Could not connect to backend.";}
+    });
+  </script>
+</body>
+</html>
